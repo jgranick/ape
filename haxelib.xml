@@ -1,7 +1,7 @@
-<project name="ape" url="http://www.joshuagranick.com" license="BSD">
+<project name="ape" url="http://www.joshuagranick.com" license="MIT">
     <user name="elyon"/>
     <tag v="flash"/>
     <tag v="cpp"/>
     <description>APE (Actionscript Physics Engine) is a free open source 2D physics engine, ported for use in Haxe.</description>
-    <version name="1.00">Added to haxelib</version>
+    <version name="1.01">Fixed license</version>
 </project>
