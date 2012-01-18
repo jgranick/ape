@@ -189,12 +189,13 @@ package org.cove.ape ;
 		 */
 		private static function testOBBvsCircle(ra:RectangleParticle, ca:CircleParticle):Bool {
 
-			var collisionNormal:Vector2D = null;
+			var collisionNormal:Vector2D;
 			var collisionDepth:Float = Math.POSITIVE_INFINITY;
 			var depths = [ 2.0 ];
 
 			// first go through the axes of the rectangle
-			for (i in 0...2) {
+			var i:Int = 0;
+			for (i in 0.. {
 
 
 				var boxAxis:Vector2D = ra.axes[i];
@@ -206,6 +207,7 @@ package org.cove.ape ;
 					collisionDepth = depth;
 				}
 				depths[i] = depth;
+				 i++;
 			}
 
 			// determine if the circle's Std.is(center,in) a vertex region

@@ -324,14 +324,14 @@ package org.cove.ape ;
 		 */
 		private function getContactPointParam(p:AbstractParticle):Float {
 
-			var t:Float;
+			var t:Float = 0;
 
 			if (Std.is(p,CircleParticle))  {
 				t = closestParamPoint(p.curr);
 			} else if (Std.is(p,RectangleParticle)) {
 
 				// go through the sides of the colliding cast(rectangle,line) segments
-				var shortestIndex:Int;
+				var shortestIndex:Int = -1;
 				var paramList = [ 4.0 ];
 				var shortestDistance:Float = Math.POSITIVE_INFINITY;
 
