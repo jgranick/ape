@@ -35,14 +35,14 @@ package org.cove.ape ;
         public static function resolveParticleParticle(
                 pa:AbstractParticle,
                 pb:AbstractParticle,
-                normal:Vector,
+                normal:Vector2D,
                 depth:Float):Void {
 
     		// a collision has occured. set the current positions to sample locations
     		pa.curr.copy(pa.samp);
     		pb.curr.copy(pb.samp);
 
-            var mtd:Vector = normal.mult(depth);
+            var mtd:Vector2D = normal.mult(depth);
             var te:Float = pa.elasticity + pb.elasticity;
             var sumInvMass:Float = pa.invMass + pb.invMass;
 
@@ -54,9 +54,9 @@ package org.cove.ape ;
             var cb:Collision = pb.getComponents(normal);
 
              // calculate the coefficient of restitution based on the mass, as the normal component
-            var vnA:Vector = (cb.vn.mult((te + 1) * pa.invMass).plus(
+            var vnA:Vector2D = (cb.vn.mult((te + 1) * pa.invMass).plus(
            		ca.vn.mult(pb.invMass - te * pa.invMass))).divEquals(sumInvMass);
-            var vnB:Vector = (ca.vn.mult((te + 1) * pb.invMass).plus(
+            var vnB:Vector2D = (ca.vn.mult((te + 1) * pb.invMass).plus(
            		cb.vn.mult(pa.invMass - te * pb.invMass))).divEquals(sumInvMass);
 
             // apply friction to the tangental component
@@ -64,8 +64,8 @@ package org.cove.ape ;
             cb.vt.multEquals(tf);
 
             // scale the mtd by the ratio of the masses. heavier particles move less
-            var mtdA:Vector = mtd.mult( pa.invMass / sumInvMass);
-            var mtdB:Vector = mtd.mult(-pb.invMass / sumInvMass);
+            var mtdA:Vector2D = mtd.mult( pa.invMass / sumInvMass);
+            var mtdB:Vector2D = mtd.mult(-pb.invMass / sumInvMass);
 
             // add the tangental component to the normal component for the new velocity
             vnA.plusEquals(ca.vt);

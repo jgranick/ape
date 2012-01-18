@@ -154,18 +154,18 @@ package org.cove.ape ;
 		 */
 		private static function testOBBvsOBB(ra:RectangleParticle, rb:RectangleParticle):Bool {
 
-			var collisionNormal:Vector;
+			var collisionNormal:Vector2D;
 			var collisionDepth:Float = Math.POSITIVE_INFINITY;
 
 			var i:Int = 0;
 			while( i < 2) {
 
 
-			    var axisA:Vector = ra.axes[i];
+			    var axisA:Vector2D = ra.axes[i];
 			    var depthA:Float = testIntervals(ra.getProjection(axisA), rb.getProjection(axisA));
 			    if (depthA == 0) return false;
 
-			    var axisB:Vector = rb.axes[i];
+			    var axisB:Vector2D = rb.axes[i];
 			    var depthB:Float = testIntervals(ra.getProjection(axisB), rb.getProjection(axisB));
 			    if (depthB == 0) return false;
 
@@ -191,7 +191,7 @@ package org.cove.ape ;
 		 */
 		private static function testOBBvsCircle(ra:RectangleParticle, ca:CircleParticle):Bool {
 
-			var collisionNormal:Vector;
+			var collisionNormal:Vector2D;
 			var collisionDepth:Float = Math.POSITIVE_INFINITY;
 			var depths = [ 2.0 ];
 
@@ -200,7 +200,7 @@ package org.cove.ape ;
 			while( i < 2) {
 
 
-				var boxAxis:Vector = ra.axes[i];
+				var boxAxis:Vector2D = ra.axes[i];
 				var depth:Float = testIntervals(ra.getProjection(boxAxis), ca.getProjection(boxAxis));
 				if (depth == 0) return false;
 
@@ -216,7 +216,7 @@ package org.cove.ape ;
 			var r:Float = ca.radius;
 			if (Math.abs(depths[0]) < r && Math.abs(depths[1]) < r) {
 
-				var vertex:Vector = closestVertexOnOBB(ca.samp, ra);
+				var vertex:Vector2D = closestVertexOnOBB(ca.samp, ra);
 
 				// get the distance from the closest vertex on rect to circle center
 				collisionNormal = vertex.minus(ca.samp);
@@ -249,7 +249,7 @@ package org.cove.ape ;
 			var depthY:Float = testIntervals(ca.getIntervalY(), cb.getIntervalY());
 			if (depthY == 0) return false;
 
-			var collisionNormal:Vector = ca.samp.minus(cb.samp);
+			var collisionNormal:Vector2D = ca.samp.minus(cb.samp);
 			var mag:Float = collisionNormal.magnitude();
 			var collisionDepth:Float = (ca.radius + cb.radius) - mag;
 
@@ -280,10 +280,10 @@ package org.cove.ape ;
 		/**
 		 * Returns the location of the closest vertex on r to point p
 		 */
-		private static function closestVertexOnOBB(p:Vector, r:RectangleParticle):Vector {
+		private static function closestVertexOnOBB(p:Vector2D, r:RectangleParticle):Vector2D {
 
-			var d:Vector = p.minus(r.samp);
-			var q:Vector = new Vector(r.samp.x, r.samp.y);
+			var d:Vector2D = p.minus(r.samp);
+			var q:Vector2D = new Vector2D(r.samp.x, r.samp.y);
 
 			var i:Int = 0;
 			while( i < 2) {

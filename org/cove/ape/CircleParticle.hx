@@ -55,14 +55,10 @@ package org.cove.ape ;
 				x:Float,
 				y:Float,
 				radius:Float,
-				?_opt_fixed:Null<Bool>,
-				?_opt_mass:Null<Float>,
-				?_opt_elasticity:Null<Float>,
-				?_opt_friction:Null<Float>) {
-			var fixed:Bool = _opt_fixed==null ? false : _opt_fixed;
-			var mass:Float = _opt_mass==null ? 1 : _opt_mass;
-			var elasticity:Float = _opt_elasticity==null ? 0.3 : _opt_elasticity;
-			var friction:Float = _opt_friction==null ? 0 : _opt_friction;
+				fixed:Bool = false,
+				mass:Float = 1,
+				elasticity:Float = 0.3,
+				friction:Float = 0) {
 
 			super(x, y, fixed, mass, elasticity, friction);
 			_radius = radius;
@@ -120,7 +116,7 @@ package org.cove.ape ;
 		/**
 		 * @private
 		 */
-		public function getProjection(axis:Vector):Interval {
+		public function getProjection(axis:Vector2D):Interval {
 			var c:Float = samp.dot(axis);
 			interval.min = c - _radius;
 			interval.max = c + _radius;

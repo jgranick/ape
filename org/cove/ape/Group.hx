@@ -51,9 +51,8 @@ package org.cove.ape ;
 		 * with particles, constraints, and composites, they are added to the APEngine. Groups may contain
 		 * particles, constraints, and composites. Composites may only contain particles and constraints.
 		 */
-		public function new(?_opt_collideInternal:Null<Bool>) {
+		public function new(collideInternal:Bool = false) {
 			super();
-			var collideInternal:Bool = _opt_collideInternal==null ? false : _opt_collideInternal;
 			_composites = new Array<Composite>();
 			_collisionList = new Array<Group>();
 			this.collideInternal = collideInternal;
@@ -66,11 +65,8 @@ package org.cove.ape ;
 		 */
 		public override function init():Void {
 			super.init();
-			var i:Int = 0;
-			while( i < composites.length) {
-
-				composites[i].init();
-				 i++;
+			for (c in _composites) {
+				c.init();
 			}
 		}
 
@@ -101,11 +97,10 @@ package org.cove.ape ;
 		 * @param c The Composite to be removed.
 		 */
 		public function removeComposite(c:Composite):Void {
-			var cpos:Int = PArray.indexOf(composites,c);
-			if (cpos == -1) return;
-			composites.splice(cpos, 1);
-			c.isParented = false;
-			c.cleanup();
+			if (_composites.remove (c)) {
+				c.isParented = false;
+				c.cleanup();
+			}
 		}
 
 
@@ -117,13 +112,8 @@ package org.cove.ape ;
 
 			super.paint();
 
-			var len:Int = _composites.length;
-			var i:Int = 0;
-			while( i < len) {
-
-				var c:Composite = _composites[i];
+			for (c in _composites) {
 				c.paint();
-				 i++;
 			}
 		}
 
@@ -133,7 +123,7 @@ package org.cove.ape ;
 		 * this one.
 		 */
 		public function addCollidable(g:Group):Void {
-			 collisionList.push(g);
+			_collisionList.push(g);
 		}
 
 
@@ -141,9 +131,7 @@ package org.cove.ape ;
 		 * Removes a Group from the collidable list of this Group.
 		 */
 		public function removeCollidable(g:Group):Void {
-			var pos:Int = PArray.indexOf(collisionList,g);
-			if (pos == -1) return;
-			collisionList.splice(pos, 1);
+			_collisionList.remove (g);
 		}
 
 
@@ -152,12 +140,8 @@ package org.cove.ape ;
 		 * against this one.
 		 */
 		public function addCollidableList(list:Array<Group>):Void {
-			 var i:Int = 0;
-			 while( i < list.length) {
-
-				var g:Group = list[i];
-				collisionList.push(g);
-			 	 i++;
+			 for (g in list) {
+				_collisionList.push(g);
 			 }
 		}
 
@@ -204,11 +188,8 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in composites) r.
 		 */
 		public override function cleanup():Void {
 			super.cleanup();
-			var i:Int = 0;
-			while( i < composites.length) {
-
-				composites[i].cleanup();
-				 i++;
+			for (c in _composites) {
+				c.cleanup();
 			}
 		}
 
@@ -220,13 +201,8 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in composites) r.
 
 			super.integrate(dt2);
 
-			var len:Int = _composites.length;
-			var i:Int = 0;
-			while( i < len) {
-
-				var cmp:Composite = _composites[i];
+			for (cmp in _composites) {
 				cmp.integrate(dt2);
-				 i++;
 			}
 		}
 
@@ -238,13 +214,8 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in composites) r.
 
 			super.satisfyConstraints();
 
-			var len:Int = _composites.length;
-			var i:Int = 0;
-			while( i < len) {
-
-				var cmp:Composite = _composites[i];
+			for (cmp in _composites) {
 				cmp.satisfyConstraints();
-				 i++;
 			}
 		}
 
@@ -256,13 +227,8 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in composites) r.
 
 			if (collideInternal) checkCollisionGroupInternal();
 
-			var len:Int = collisionList.length;
-			var i:Int = 0;
-			while( i < len) {
-
-				var g:Group = collisionList[i];
+			for (g in _collisionList) {
 				checkCollisionVsGroup(g);
-				 i++;
 			}
 		}
 
@@ -273,9 +239,7 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in composites) r.
 			checkInternalCollisions();
 
 			// for every composite in this Group..
-			var clen:Int = _composites.length;
-			var j:Int = 0;
-			while( j < clen) {
+			for (j in 0..._composites.length) {
 
 
 				var ca:Composite = _composites[j];
@@ -284,14 +248,11 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in composites) r.
 				ca.checkCollisionsVsCollection(this);
 
 				// ...vs every other composite in this Group
-				var i:Int = j + 1;
-				while( i < clen) {
+				for(i in (j + 1)..._composites.length) {
 
 					var cb:Composite = _composites[i];
 					ca.checkCollisionsVsCollection(cb);
-					 i++;
 				}
-				 j++;
 			}
 		}
 
@@ -305,32 +266,26 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in composites) r.
 			var gclen:Int = g.composites.length;
 
 			// for every composite in this group..
-			var i:Int = 0;
-			while( i < clen) {
+			for (c in _composites) {
 
 
 				// check vs the particles and constraints of g
-				var c:Composite = _composites[i];
 				c.checkCollisionsVsCollection(g);
 
 				// check vs composites of g
-				var j:Int = 0;
-				while( j < gclen) {
-
-					var gc:Composite = g.composites[j];
+				for (gc in g.composites) {
+					
 					c.checkCollisionsVsCollection(gc);
-					 j++;
+					
 				}
-				 i++;
+				
 			}
 
 			// check particles and constraints of this group vs the composites of g
-			var j = 0;
-			while( j < gclen) {
+			for (gc in g.composites) {
 
-				var gc = g.composites[j];
 				checkCollisionsVsCollection(gc);
-				 j++;
+				
 			}
 		}
 	}

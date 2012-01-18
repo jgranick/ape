@@ -46,30 +46,30 @@ package org.cove.ape ;
 		public function getRectangleParticle() : RectangleParticle { return null; }
 
 		public var elasticity(get_elasticity,set_elasticity):Float;
-		public var position(get_position,set_position):Vector;
+		public var position(get_position,set_position):Vector2D;
 		public var friction(get_friction,set_friction):Float;
 		public var px(get_px,set_px):Float;
 		public var invMass(get_invMass,null):Float;
 		public var py(get_py,set_py):Float;
 		public var multisample(get_multisample,set_multisample):Int;
-		public var center(get_center,null):Vector;
+		public var center(get_center,null):Vector2D;
 		public var fixed(get_fixed,set_fixed):Bool;
 		public var collidable(get_collidable,set_collidable):Bool;
 		public var mass(get_mass,set_mass):Float;
-		public var velocity(get_velocity,set_velocity):Vector;
+		public var velocity(get_velocity,set_velocity):Vector2D;
 
 
 		/** @private */
-		public var curr:Vector;
+		public var curr:Vector2D;
 		/** @private */
-		public var prev:Vector;
+		public var prev:Vector2D;
 		/** @private */
-		public var samp:Vector;
+		public var samp:Vector2D;
 		/** @private */
 		public var interval:Interval;
 
-		private var forces:Vector;
-		private var temp:Vector;
+		private var forces:Vector2D;
+		private var temp:Vector2D;
 		private var collision:Collision;
 
 		private var _kfr:Float;
@@ -80,7 +80,7 @@ package org.cove.ape ;
 		private var _fixed:Bool;
 		private var _collidable:Bool;
 
-		private var _center:Vector;
+		private var _center:Vector2D;
 		private var _multisample:Int;
 
 
@@ -102,14 +102,14 @@ package org.cove.ape ;
 
 			interval = new Interval(0,0);
 
-			curr = new Vector(x, y);
-			prev = new Vector(x, y);
-			samp = new Vector();
-			temp = new Vector();
+			curr = new Vector2D(x, y);
+			prev = new Vector2D(x, y);
+			samp = new Vector2D();
+			temp = new Vector2D();
 			fixed = isFixed;
 
-			forces = new Vector();
-			collision = new Collision(new Vector(), new Vector());
+			forces = new Vector2D();
+			collision = new Collision(new Vector2D(), new Vector2D());
 			collidable = true;
 
 			this.mass = mass;
@@ -118,7 +118,7 @@ package org.cove.ape ;
 
 			setStyle();
 
-			_center = new Vector();
+			_center = new Vector2D();
 			_multisample = 0;
 		}
 
@@ -198,7 +198,7 @@ package org.cove.ape ;
 		/**
 		 * Returns A Vector of the current location of the particle
 		 */
-		public function get_center():Vector {
+		public function get_center():Vector2D {
 			_center.setTo(px, py);
 			return _center;
 		}
@@ -281,15 +281,15 @@ package org.cove.ape ;
 		 * its position will cast(behave,if) it's attached there by a 0 length spring constraint.
 		 * </p>
 		 */
-		public function get_position():Vector {
-			return new Vector(curr.x,curr.y);
+		public function get_position():Vector2D {
+			return new Vector2D(curr.x,curr.y);
 		}
 
 
 		/**
 		 * @private
 		 */
-		public function set_position(p:Vector) {
+		public function set_position(p:Vector2D) {
 			curr.copy(p);
 			prev.copy(p);
 			return p;
@@ -339,7 +339,7 @@ package org.cove.ape ;
 		 * is good for instantaneously setting the velocity, e.g., for projectiles.
 		 *
 		 */
-		public function get_velocity():Vector {
+		public function get_velocity():Vector2D {
 			return curr.minus(prev);
 		}
 
@@ -347,7 +347,7 @@ package org.cove.ape ;
 		/**
 		 * @private
 		 */
-		public function set_velocity(v:Vector) {
+		public function set_velocity(v:Vector2D) {
 			prev = curr.minus(v);
 			return v;
 		}
@@ -374,13 +374,10 @@ package org.cove.ape ;
 		/**
 		 * Assigns a DisplayObject to be used when painting this particle.
 		 */
-		public function setDisplay(d:DisplayObject, ?_opt_offsetX:Null<Float>, ?_opt_offsetY:Null<Float>, ?_opt_rotation:Null<Float>):Void {
-			var offsetX:Float = _opt_offsetX==null ? 0 : _opt_offsetX;
-			var offsetY:Float = _opt_offsetY==null ? 0 : _opt_offsetY;
-			var rotation:Float = _opt_rotation==null ? 0 : _opt_rotation;
+		public function setDisplay(d:DisplayObject, offsetX:Float = 0, offsetY:Float = 0, rotation:Float = 0):Void {
 			displayObject = d;
 			displayObjectRotation = rotation;
-			displayObjectOffset = new Vector(offsetX, offsetY);
+			displayObjectOffset = new Vector2D(offsetX, offsetY);
 		}
 
 
@@ -394,7 +391,7 @@ package org.cove.ape ;
 		 *
 		 * @param f A Vector represeting the force added.
 		 */
-		public function addForce(f:Vector):Void {
+		public function addForce(f:Vector2D):Void {
 			forces.plusEquals(f.mult(invMass));
 		}
 
@@ -407,7 +404,7 @@ package org.cove.ape ;
 		 *
 		 * @param f A Vector represeting the force added.
 		 */
-		public function addMasslessForce(f:Vector):Void {
+		public function addMasslessForce(f:Vector2D):Void {
 			forces.plusEquals(f);
 		}
 
@@ -427,7 +424,7 @@ package org.cove.ape ;
 			// integrate
 			temp.copy(curr);
 
-			var nv:Vector = velocity.plus(forces.multEquals(dt2));
+			var nv:Vector2D = velocity.plus(forces.multEquals(dt2));
 			curr.plusEquals(nv.multEquals(APEngine.damping));
 			prev.copy(temp);
 
@@ -450,8 +447,8 @@ package org.cove.ape ;
 		/**
 		 * @private
 		 */
-		public function getComponents(collisionNormal:Vector):Collision {
-			var vel:Vector = velocity;
+		public function getComponents(collisionNormal:Vector2D):Collision {
+			var vel:Vector2D = velocity;
 			var vdotn:Float = collisionNormal.dot(vel);
 			collision.vn = collisionNormal.mult(vdotn);
 			collision.vt = vel.minus(collision.vn);
@@ -463,7 +460,7 @@ package org.cove.ape ;
 		 * @private
 		 */
 		public function resolveCollision(
-				mtd:Vector, vel:Vector, n:Vector, d:Float, o:Int, p:AbstractParticle):Void {
+				mtd:Vector2D, vel:Vector2D, n:Vector2D, d:Float, o:Int, p:AbstractParticle):Void {
 
 			curr.plusEquals(mtd);
 			velocity = vel;

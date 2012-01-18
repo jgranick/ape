@@ -34,7 +34,7 @@ package org.cove.ape ;
 	class RectangleParticle extends AbstractParticle {
 		public override function getRectangleParticle(): RectangleParticle { return this; }
 
-		public var axes(get_axes,null):Array<Vector>;
+		public var axes(get_axes,null):Array<Vector2D>;
 		public var extents(get_extents,null):Array<Float>;
 		public var angle(get_angle,set_angle):Float;
 		public var height(get_height,set_height):Float;
@@ -43,7 +43,7 @@ package org.cove.ape ;
 
 
 		private var _extents:Array<Float>;
-		private var _axes:Array<Vector>;
+		private var _axes:Array<Vector2D>;
 		private var _radian:Float;
 
 
@@ -69,21 +69,16 @@ package org.cove.ape ;
 				y:Float,
 				width:Float,
 				height:Float,
-				?_opt_rotation:Null<Float>,
-				?_opt_fixed:Null<Bool>,
-				?_opt_mass:Null<Float>,
-				?_opt_elasticity:Null<Float>,
-				?_opt_friction:Null<Float>) {
-			var rotation:Float = _opt_rotation==null ? 0 : _opt_rotation;
-			var fixed:Bool = _opt_fixed==null ? false : _opt_fixed;
-			var mass:Float = _opt_mass==null ? 1 : _opt_mass;
-			var elasticity:Float = _opt_elasticity==null ? 0.3 : _opt_elasticity;
-			var friction:Float = _opt_friction==null ? 0 : _opt_friction;
+				rotation:Float = 0,
+				fixed:Bool = false,
+				mass:Float = 1,
+				elasticity:Float = 0.3,
+				friction:Float = 0) {
 
 			super(x, y, fixed, mass, elasticity, friction);
 
 			_extents = [ width/2, height/2 ];
-			_axes = [ new Vector(0,0), new Vector(0,0) ];
+			_axes = [ new Vector2D(0,0), new Vector2D(0,0) ];
 			radian = rotation;
 		}
 
@@ -193,7 +188,7 @@ package org.cove.ape ;
 		/**
 		 * @private
 		 */
-		public function get_axes():Array<Vector> {
+		public function get_axes():Array<Vector2D> {
 			return _axes;
 		}
 
@@ -209,7 +204,7 @@ package org.cove.ape ;
 		/**
 		 * @private
 		 */
-		public function getProjection(axis:Vector):Interval {
+		public function getProjection(axis:Vector2D):Interval {
 
 			var radius:Float =
 			    extents[0] * Math.abs(axis.dot(axes[0]))+

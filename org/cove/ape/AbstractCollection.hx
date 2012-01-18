@@ -45,7 +45,7 @@ package org.cove.ape ;
 	 */
 	class AbstractCollection {
 		public var particles(get_particles,null):Array<AbstractParticle>;
-		public var constraints(get_constraints,null):Array<AbstractConstraint>;
+		public var constraints(get_constraints,null):Array<SpringConstraint>;
 		public var sprite(get_sprite,null):Sprite;
 		public var isParented(get_isParented,set_isParented):Bool;
 
@@ -53,7 +53,7 @@ package org.cove.ape ;
 
 		private var _sprite:Sprite;
 		private var _particles:Array<AbstractParticle>;
-		private var _constraints:Array<AbstractConstraint>;
+		private var _constraints:Array<SpringConstraint>;
 		private var _isParented:Bool;
 
 
@@ -63,7 +63,7 @@ package org.cove.ape ;
 //			}
 			_isParented = false;
 			_particles = new Array<AbstractParticle>();
-			_constraints = new Array<AbstractConstraint>();
+			_constraints = new Array<SpringConstraint>();
 		}
 
 
@@ -78,7 +78,7 @@ package org.cove.ape ;
 		/**
 		 * The Array<Dynamic> of all AbstractConstraint instances added to the AbstractCollection
 		 */
-		public function get_constraints():Array<AbstractConstraint> {
+		public function get_constraints():Array<SpringConstraint> {
 			return _constraints;
 		}
 
@@ -100,10 +100,9 @@ package org.cove.ape ;
 		 * @param p The particle to be removed.
 		 */
 		public function removeParticle(p:AbstractParticle):Void {
-			var ppos:Int = PArray.indexOf(particles,p);
-			if (ppos == -1) return;
-			particles.splice(ppos, 1);
-			p.cleanup();
+			if (particles.remove (p)) {
+				p.cleanup();
+			}
 		}
 
 
@@ -112,7 +111,7 @@ package org.cove.ape ;
 		 *
 		 * @param c The constraint to be added.
 		 */
-		public function addConstraint(c:AbstractConstraint):Void {
+		public function addConstraint(c:SpringConstraint):Void {
 			constraints.push(c);
 			if (isParented) c.init();
 		}
@@ -123,11 +122,10 @@ package org.cove.ape ;
 		 *
 		 * @param c The constraint to be removed.
 		 */
-		public function removeConstraint(c:AbstractConstraint):Void {
-			var cpos:Int = PArray.indexOf(constraints,c);
-			if (cpos == -1) return;
-			constraints.splice(cpos, 1);
-			c.cleanup();
+		public function removeConstraint(c:SpringConstraint):Void {
+			if (constraints.remove (c)) {
+				c.cleanup();
+			}
 		}
 
 
@@ -136,18 +134,13 @@ package org.cove.ape ;
 		 * each members <code>init()</code> method.
 		 */
 		public function init():Void {
-
-			var i:Int = 0;
-			while( i < particles.length) {
-
-				particles[i].init();
-				 i++;
+			
+			for (p in _particles) {
+				p.init();
 			}
-			i = 0;
-			while( i < constraints.length) {
-
-				constraints[i].init();
-				 i++;
+			
+			for (c in _constraints) {
+				c.init();
 			}
 		}
 
@@ -158,24 +151,12 @@ package org.cove.ape ;
 		 */
 		public function paint():Void {
 
-			var p:AbstractParticle;
-			var len:Int = _particles.length;
-			var i:Int = 0;
-			while( i < len) {
-
-				p = _particles[i];
+			for (p in _particles) {
 				if ((! p.fixed) || p.alwaysRepaint) p.paint();
-				 i++;
 			}
-
-			var c:SpringConstraint;
-			len = _constraints.length;
-			i = 0;
-			while( i < len) {
-
-				c = cast(_constraints[i],SpringConstraint);
+			
+			for (c in _constraints) {
 				if ((! c.fixed) || c.alwaysRepaint) c.paint();
-				 i++;
 			}
 		}
 
@@ -187,17 +168,12 @@ package org.cove.ape ;
 		 */
 		public function cleanup():Void {
 
-			var i:Int = 0;
-			while( i < particles.length) {
-
-				particles[i].cleanup();
-				 i++;
+			for (p in _particles) {
+				p.cleanup();
 			}
-			i = 0;
-			while( i < constraints.length) {
-
-				constraints[i].cleanup();
-				 i++;
+			
+			for (c in _constraints) {
+				c.cleanup();
 			}
 		}
 
@@ -250,13 +226,8 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in constraints) r
 		 * @private
 		 */
 		public function integrate(dt2:Float):Void {
-			var len:Int = _particles.length;
-			var i:Int = 0;
-			while( i < len) {
-
-				var p:AbstractParticle = _particles[i];
+			for (p in _particles) {
 				p.update(dt2);
-				 i++;
 			}
 		}
 
@@ -265,13 +236,8 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in constraints) r
 		 * @private
 		 */
 		public function satisfyConstraints():Void {
-			var len:Int = _constraints.length;
-			var i:Int = 0;
-			while( i < len) {
-
-				var c:AbstractConstraint = _constraints[i];
+			for (c in _constraints) {
 				c.resolve();
-				 i++;
 			}
 		}
 
@@ -284,34 +250,28 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in constraints) r
 			// every particle in this AbstractCollection
 			var plen:Int = _particles.length;
 			var j:Int = 0;
-			while( j < plen) {
+			while (j < plen) {
 
 
 				var pa:AbstractParticle = _particles[j];
-				if (! pa.collidable) {				 j++; continue; }
+				if (! pa.collidable) { j++; continue; }
 
 				// ...vs every other particle in this AbstractCollection
-				var i:Int = j + 1;
-				while( i < plen) {
+				for(i in (j + 1)...plen) {
 
 					var pb:AbstractParticle = _particles[i];
 					if (pb.collidable) CollisionDetector.test(pa, pb);
-					 i++;
 				}
 
 				// ...vs every other constraint in this AbstractCollection
-				var clen:Int = _constraints.length;
-				var n:Int = 0;
-				while( n < clen) {
+				for (c in _constraints) {
 
-					var c:SpringConstraint = cast( _constraints[n],SpringConstraint);
 					if (c.collidable && ! c.isConnectedTo(pa)) {
 						c.scp.updatePosition();
 						CollisionDetector.test(pa, c.scp);
 					}
-					 n++;
 				}
-				 j++;
+				j++;
 			}
 		}
 
@@ -324,32 +284,24 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in constraints) r
 			// every particle in this collection...
 			var plen:Int = _particles.length;
 			var j:Int = 0;
-			while( j < plen) {
+			while (j < plen) {
 
 
 				var pga:AbstractParticle = _particles[j];
-				if (! pga.collidable) {				 j++; continue; }
+				if (! pga.collidable) {	j++; continue; }
 
 				// ...vs every particle in the other collection
 				var acplen:Int = ac.particles.length;
 				var x:Int = 0;
-				while( x < acplen) {
-
-					var pgb:AbstractParticle = ac.particles[x];
+				for (pgb in ac.particles) {
 					if (pgb.collidable) CollisionDetector.test(pga, pgb);
-					 x++;
 				}
 				// ...vs every constraint in the other collection
-				var acclen:Int = ac.constraints.length;
-				x = 0;
-				while( x < acclen) {
-
-					var cgb:SpringConstraint = cast( ac.constraints[x],SpringConstraint);
+				for (cgb in ac.constraints) {
 					if (cgb.collidable && ! cgb.isConnectedTo(pga)) {
 						cgb.scp.updatePosition();
 						CollisionDetector.test(pga, cgb.scp);
 					}
-					 x++;
 				}
 				 j++;
 			}
@@ -357,27 +309,19 @@ var r=new Array<Dynamic>();for(p in particles) r.push(p);for(c in constraints) r
 			// every constraint in this collection...
 			var clen:Int = _constraints.length;
 			j = 0;
-			while( j < clen) {
-
+			for (cga in _constraints) {
+				
 				var cga:SpringConstraint = cast( _constraints[j],SpringConstraint);
-				if (! cga.collidable) {				 j++; continue; }
+				if (! cga.collidable) { j++; continue; }
 
 				// ...vs every particle in the other collection
-				var acplen = ac.particles.length;
-				var n:Int = 0;
-				while( n < acplen) {
-
-					var pgb:AbstractParticle = ac.particles[n];
+				for (pgb in ac.particles) {
 					if (pgb.collidable && ! cga.isConnectedTo(pgb)) {
 						cga.scp.updatePosition();
 						CollisionDetector.test(pgb, cga.scp);
 					}
-					 n++;
 				}
 				 j++;
 			}
 		}
 	}
-
-
-

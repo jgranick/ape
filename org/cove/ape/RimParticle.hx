@@ -31,8 +31,8 @@ package org.cove.ape ;
 		public var angularVelocity(get_angularVelocity,set_angularVelocity):Float;
 
 
-		public var curr:Vector;
-		public var prev:Vector;
+		public var curr:Vector2D;
+		public var prev:Vector2D;
 
 		private var wr:Float;
 		private var av:Float;

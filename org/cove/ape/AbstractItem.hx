@@ -45,17 +45,17 @@ package org.cove.ape ;
 		/** @private */
 		public var lineThickness:Float;
 		/** @private */
-		public var lineColor:UInt;
+		public var lineColor:Int;
 		/** @private */
 		public var lineAlpha:Float;
 		/** @private */
-		public var fillColor:UInt;
+		public var fillColor:Int;
 		/** @private */
 		public var fillAlpha:Float;
 		/** @private */
 		public var displayObject:DisplayObject;
 		/** @private */
-		public var displayObjectOffset:Vector;
+		public var displayObjectOffset:Vector2D;
 		/** @private */
 		public var displayObjectRotation:Float;
 
@@ -139,15 +139,9 @@ package org.cove.ape ;
 		/**
 		 * Sets the line and fill of this Item.
 		 */
-		public function setStyle(
-				?_opt_lineThickness:Null<Float>, ?_opt_lineColor:Null<UInt>, ?_opt_lineAlpha:Null<Float>,
-				?_opt_fillColor:Null<UInt>, ?_opt_fillAlpha:Null<Float>):Void {
-			var lineThickness:Float = _opt_lineThickness==null ? 0 : _opt_lineThickness;
-			var lineColor:UInt = _opt_lineColor==null ? 0x000000 : _opt_lineColor;
-			var lineAlpha:Float = _opt_lineAlpha==null ? 1 : _opt_lineAlpha;
-			var fillColor:UInt = _opt_fillColor==null ? 0xffffff : _opt_fillColor;
-			var fillAlpha:Float = _opt_fillAlpha==null ? 1 : _opt_fillAlpha;
-
+		public function setStyle(lineThickness:Float = 0, lineColor:Int = 0x000000, lineAlpha:Float = 1,
+				fillColor:Int = 0xFFFFFF, fillAlpha:Float = 1):Void {
+			
 			setLine(lineThickness, lineColor, lineAlpha);
 			setFill(fillColor, fillAlpha);
 		}
@@ -156,10 +150,7 @@ package org.cove.ape ;
 		/**
 		 * Sets the style of the line for this Item.
 		 */
-		public function setLine(?_opt_thickness:Null<Float>, ?_opt_color:Null<UInt>, ?_opt_alpha:Null<Float>):Void {
-			var thickness:Float = _opt_thickness==null ? 0 : _opt_thickness;
-			var color:UInt = _opt_color==null ? 0x000000 : _opt_color;
-			var alpha:Float = _opt_alpha==null ? 1 : _opt_alpha;
+		public function setLine(thickness:Float = 0, color:Int = 0x000000, alpha:Float = 1):Void {
 			lineThickness = thickness;
 			lineColor = color;
 			lineAlpha = alpha;
@@ -169,9 +160,7 @@ package org.cove.ape ;
 		/**
 		 * Sets the style of the fill for this Item.
 		 */
-		public function setFill(?_opt_color:Null<UInt>, ?_opt_alpha:Null<Float>):Void {
-			var color:UInt = _opt_color==null ? 0xffffff : _opt_color;
-			var alpha:Float = _opt_alpha==null ? 1 : _opt_alpha;
+		public function setFill(color:Int = 0xFFFFFF, alpha:Float = 1):Void {
 			fillColor = color;
 			fillAlpha = alpha;
 		}

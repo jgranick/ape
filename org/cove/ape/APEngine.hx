@@ -43,9 +43,9 @@ package org.cove.ape ;
 
 
 		/**@private */
-		public static var force:Vector;
+		public static var force:Vector2D;
 		/**@private */
-		public static var masslessForce:Vector;
+		public static var masslessForce:Vector2D;
 
 		private static var groups:Array<Group>;
 		private static var numGroups:Int;
@@ -69,15 +69,14 @@ package org.cove.ape ;
 		 * Note that this only applies to the forces added to particles. If you do not add any
 		 * forces, the <code>dt</code> value won't matter.
 		 */
-		public static function init(?_opt_dt:Null<Float>):Void {
-			var dt:Float = _opt_dt==null ? 0.25 : _opt_dt;
+		public static function init(dt:Float = 0.25):Void {
 			timeStep = dt * dt;
 
 			numGroups = 0;
 			groups = new Array<Group>();
 
-			force = new Vector(0,0);
-			masslessForce = new Vector(0,0);
+			force = new Vector2D(0,0);
+			masslessForce = new Vector2D(0,0);
 
 			damping = 1;
 
@@ -202,7 +201,7 @@ package org.cove.ape ;
 		 *
 		 * @param f A Vector represeting the force added.
 		 */
-		public static function addForce(v:Vector):Void {
+		public static function addForce(v:Vector2D):Void {
 			force.plusEquals(v);
 		}
 
@@ -216,7 +215,7 @@ package org.cove.ape ;
 		 *
 		 * @param f A Vector represeting the force added.
 		 */
-		public static function addMasslessForce(v:Vector):Void {
+		public static function addMasslessForce(v:Vector2D):Void {
 			masslessForce.plusEquals(v);
 		}
 
@@ -236,14 +235,15 @@ package org.cove.ape ;
 		 * @private
 		 */
 		public static function removeGroup(g:Group):Void {
+			
+			if (groups.remove (g)) {
 
-			var gpos:Int = PArray.indexOf(groups,g);
-			if (gpos == -1) return;
+				g.isParented = false;
+				numGroups--;
+				g.cleanup();
 
-			groups.splice(gpos, 1);
-			g.isParented = false;
-			numGroups--;
-			g.cleanup();
+			}
+
 		}
 
 

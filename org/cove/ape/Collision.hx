@@ -24,10 +24,10 @@ package org.cove.ape ;
 	class Collision {
 
 
-		public var vn:Vector;
-		public var vt:Vector;
+		public var vn:Vector2D;
+		public var vt:Vector2D;
 
-		public function new(vn:Vector, vt:Vector) {
+		public function new(vn:Vector2D, vt:Vector2D) {
 			this.vn = vn;
 			this.vt = vt;
 		}

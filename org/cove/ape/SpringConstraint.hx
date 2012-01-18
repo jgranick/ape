@@ -41,12 +41,12 @@ package org.cove.ape ;
 		public var rectScale(get_rectScale,set_rectScale):Float;
 		public var rectHeight(get_rectHeight,set_rectHeight):Float;
 		public var radian(get_radian,null):Float;
-		public var center(get_center,null):Vector;
+		public var center(get_center,null):Vector2D;
 		public var currLength(get_currLength,null):Float;
 		public var restLength(get_restLength,set_restLength):Float;
 		public var collidable(get_collidable,null):Bool;
 		public var fixed(get_fixed,null):Bool;
-		public var delta(get_delta,null):Vector;
+		public var delta(get_delta,null):Vector2D;
 		public var fixedEndLimit(get_fixedEndLimit,set_fixedEndLimit):Float;
 		public var scp(get_scp,null):SpringConstraintParticle;
 
@@ -75,17 +75,12 @@ package org.cove.ape ;
 		public function new(
 				p1:AbstractParticle,
 				p2:AbstractParticle,
-				?_opt_stiffness:Null<Float>,
-				?_opt_collidable:Null<Bool>,
-				?_opt_rectHeight:Null<Float>,
-				?_opt_rectScale:Null<Float>,
-				?_opt_scaleToLength:Null<Bool>) {
-			var stiffness:Float = _opt_stiffness==null ? 0.5 : _opt_stiffness;
-			var collidable:Bool = _opt_collidable==null ? false : _opt_collidable;
-			var rectHeight:Float = _opt_rectHeight==null ? 1 : _opt_rectHeight;
-			var rectScale:Float = _opt_rectScale==null ? 1 : _opt_rectScale;
-			var scaleToLength:Bool = _opt_scaleToLength==null ? false : _opt_scaleToLength;
-
+				stiffness:Float = 0.5,
+				collidable:Bool = false,
+				rectHeight:Float = 1,
+				rectScale:Float = 1,
+				scaleToLength:Bool = false) {
+			
 			super(stiffness);
 
 			this.p1 = p1;
@@ -105,7 +100,7 @@ package org.cove.ape ;
 		 * @returns A Float representing the rotation of this SpringConstraint in radians
 		 */
 		public function get_radian():Float {
-			var d:Vector = delta;
+			var d:Vector2D = delta;
 			return Math.atan2(d.y, d.x);
 		}
 
@@ -129,7 +124,7 @@ package org.cove.ape ;
 		 *
 		 * @returns A Vector representing the center of this SpringConstraint
 		 */
-		public function get_center():Vector {
+		public function get_center():Vector2D {
 			return (p1.curr.plus(p2.curr)).divEquals(2);
 		}
 
@@ -242,9 +237,8 @@ package org.cove.ape ;
 		 *
 		 */
 		public function setCollidable(b:Bool, rectHeight:Float,
-				rectScale:Float, ?_opt_scaleToLength:Null<Bool>):Void {
-			var scaleToLength:Bool = _opt_scaleToLength==null ? false : _opt_scaleToLength;
-
+				rectScale:Float, scaleToLength:Bool = false):Void {
+			
 			_collidable = b;
 			_scp = null;
 
@@ -297,7 +291,7 @@ package org.cove.ape ;
 			if (collidable) {
 				scp.paint();
 			} else if (displayObject != null) {
-				var c:Vector = center;
+				var c:Vector2D = center;
 				sprite.x = c.x;
 				sprite.y = c.y;
 				sprite.rotation = angle;
@@ -313,18 +307,15 @@ package org.cove.ape ;
 		/**
 		 * Assigns a DisplayObject to be used when painting this constraint.
 		 */
-		public function setDisplay(d:DisplayObject, ?_opt_offsetX:Null<Float>,
-				?_opt_offsetY:Null<Float>, ?_opt_rotation:Null<Float>):Void {
-			var offsetX:Float = _opt_offsetX==null ? 0 : _opt_offsetX;
-			var offsetY:Float = _opt_offsetY==null ? 0 : _opt_offsetY;
-			var rotation:Float = _opt_rotation==null ? 0 : _opt_rotation;
-
+		public function setDisplay(d:DisplayObject, offsetX:Float = 0,
+				offsetY:Float = 0, rotation:Float = 0):Void {
+			
 			if (collidable) {
 				scp.setDisplay(d, offsetX, offsetY, rotation);
 			} else {
 				displayObject = d;
 				displayObjectRotation = rotation;
-				displayObjectOffset = new Vector(offsetX, offsetY);
+				displayObjectOffset = new Vector2D(offsetX, offsetY);
 			}
 		}
 
@@ -347,7 +338,7 @@ package org.cove.ape ;
 		/**
 		 * @private
 		 */
-		public function get_delta():Vector {
+		public function get_delta():Vector2D {
 			return p1.curr.minus(p2.curr);
 		}
 
@@ -369,7 +360,7 @@ package org.cove.ape ;
 
 			var deltaLength:Float = currLength;
 			var diff:Float = (deltaLength - restLength) / (deltaLength * (p1.invMass + p2.invMass));
-			var dmds:Vector = delta.mult(diff * stiffness);
+			var dmds:Vector2D = delta.mult(diff * stiffness);
 
 			p1.curr.minusEquals(dmds.mult(p1.invMass));
 			p2.curr.plusEquals (dmds.mult(p2.invMass));

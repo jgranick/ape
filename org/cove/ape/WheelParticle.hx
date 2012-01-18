@@ -40,9 +40,9 @@ package org.cove.ape ;
 
 
 		private var rp:RimParticle;
-		private var tan:Vector;
-		private var normSlip:Vector;
-		private var orientation:Vector;
+		private var tan:Vector2D;
+		private var normSlip:Vector2D;
+		private var orientation:Vector2D;
 
 		private var _traction:Float;
 
@@ -66,24 +66,19 @@ package org.cove.ape ;
 				x:Float,
 				y:Float,
 				radius:Float,
-				?_opt_fixed:Null<Bool>,
-				?_opt_mass:Null<Float>,
-				?_opt_elasticity:Null<Float>,
-				?_opt_friction:Null<Float>,
-				?_opt_traction:Null<Float>) {
-			var fixed:Bool = _opt_fixed==null ? false : _opt_fixed;
-			var mass:Float = _opt_mass==null ? 1 : _opt_mass;
-			var elasticity:Float = _opt_elasticity==null ? 0.3 : _opt_elasticity;
-			var friction:Float = _opt_friction==null ? 0 : _opt_friction;
-			var traction:Float = _opt_traction==null ? 1 : _opt_traction;
-
+				fixed:Bool = false,
+				mass:Float = 1,
+				elasticity:Float = 0.3,
+				friction:Float = 0,
+				traction:Float = 1) {
+			
 			super(x,y,radius,fixed, mass, elasticity, friction);
-			tan = new Vector(0,0);
-			normSlip = new Vector(0,0);
+			tan = new Vector2D(0,0);
+			normSlip = new Vector2D(0,0);
 			rp = new RimParticle(radius, 2);
 
 			this.traction = traction;
-			orientation = new Vector();
+			orientation = new Vector2D();
 		}
 
 
@@ -221,7 +216,7 @@ package org.cove.ape ;
 		 * @private
 		 */
 		public override function resolveCollision(
-				mtd:Vector, vel:Vector, n:Vector, d:Float, o:Int, p:AbstractParticle):Void {
+				mtd:Vector2D, vel:Vector2D, n:Vector2D, d:Float, o:Int, p:AbstractParticle):Void {
 
 			// review the o (order) need here - its a hack fix
 			super.resolveCollision(mtd, vel, n, d, o, p);
@@ -233,7 +228,7 @@ package org.cove.ape ;
 		 * simulates torque/wheel-ground interaction - Std.is(n,the) surface normal
 		 * Origins of this code thanks to Raigan Burns, Metanet software
 		 */
-		private function resolve(n:Vector):Void {
+		private function resolve(n:Vector2D):Void {
 
 			// Std.is(this,the) tangent vector at the rim particle
 			tan.setTo(-rp.curr.y, rp.curr.x);
@@ -242,10 +237,10 @@ package org.cove.ape ;
 			tan = tan.normalize();
 
 			// velocity of the wheel's surface
-			var wheelSurfaceVelocity:Vector = tan.mult(rp.speed);
+			var wheelSurfaceVelocity:Vector2D = tan.mult(rp.speed);
 
 			// the velocity of the wheel's surface relative to the ground
-			var combinedVelocity:Vector = velocity.plusEquals(wheelSurfaceVelocity);
+			var combinedVelocity:Vector2D = velocity.plusEquals(wheelSurfaceVelocity);
 
 			// the wheel's comb velocity projected onto the contact normal
 			var cp:Float = combinedVelocity.cross(n);

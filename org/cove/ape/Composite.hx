@@ -34,19 +34,19 @@ package org.cove.ape ;
 		public var fixed(get_fixed,set_fixed):Bool;
 
 
-		private var delta:Vector;
+		private var delta:Vector2D;
 
 
 		public function new() {
 			super();
-			delta = new Vector();
+			delta = new Vector2D();
 		}
 
 
 		/**
 		 * Rotates the Composite to an angle specified in radians, around a given center
 		 */
-		public function rotateByRadian(angleRadians:Float, center:Vector):Void {
+		public function rotateByRadian(angleRadians:Float, center:Vector2D):Void {
 			var p:AbstractParticle;
 			var pa = particles;
 			var len:Int = pa.length;
@@ -66,7 +66,7 @@ package org.cove.ape ;
 		/**
 		 * Rotates the Composite to an angle specified in degrees, around a given center
 		 */
-		public function rotateByAngle(angleDegrees:Float, center:Vector):Void {
+		public function rotateByAngle(angleDegrees:Float, center:Vector2D):Void {
 			var angleRadians:Float = angleDegrees * MathUtil.PI_OVER_ONE_EIGHTY;
 			rotateByRadian(angleRadians, center);
 		}
@@ -78,11 +78,8 @@ package org.cove.ape ;
 		 * value will return false if any of the component particles are not fixed.
 		 */
 		public function get_fixed():Bool {
-			var i:Int = 0;
-			while( i < particles.length) {
-
-				if (! particles[i].fixed) return false;
-				 i++;
+			for (p in _particles) {
+				if (!p.fixed) return false;
 			}
 			return true;
 		}
@@ -92,17 +89,14 @@ package org.cove.ape ;
 		 * @private
 		 */
 		public function set_fixed(b:Bool) {
-			var i:Int = 0;
-			while( i < particles.length) {
-
-				particles[i].fixed = b;
-				 i++;
+			for (p in _particles) {
+				p.fixed = b;
 			}
 			return b;
 		}
 
 
-		private function getRelativeAngle(center:Vector, p:Vector):Float {
+		private function getRelativeAngle(center:Vector2D, p:Vector2D):Float {
 			delta.setTo(p.x - center.x, p.y - center.y);
 			return Math.atan2(delta.y, delta.x);
 		}

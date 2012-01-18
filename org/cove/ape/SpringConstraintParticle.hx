@@ -62,13 +62,13 @@ package org.cove.ape ;
 		private var p1:AbstractParticle;
 		private var p2:AbstractParticle;
 
-		private var avgVelocity:Vector;
-		private var lambda:Vector;
+		private var avgVelocity:Vector2D;
+		private var lambda:Vector2D;
 		private var parent:SpringConstraint;
 		private var scaleToLength:Bool;
 
-		private var rca:Vector;
-		private var rcb:Vector;
+		private var rca:Vector2D;
+		private var rcb:Vector2D;
 		private var s:Float;
 
 		private var _rectScale:Float;
@@ -88,8 +88,8 @@ package org.cove.ape ;
 			this.p1 = p1;
 			this.p2 = p2;
 
-			lambda = new Vector(0,0);
-			avgVelocity = new Vector(0,0);
+			lambda = new Vector2D(0,0);
+			avgVelocity = new Vector2D(0,0);
 
 			parent = p;
 			this.rectScale = rectScale;
@@ -97,8 +97,8 @@ package org.cove.ape ;
 			this.scaleToLength = scaleToLength;
 
 			fixedEndLimit = 0;
-			rca = new Vector();
-			rcb = new Vector();
+			rca = new Vector2D();
+			rcb = new Vector2D();
 		}
 
 
@@ -178,9 +178,9 @@ package org.cove.ape ;
 		/**
 		 * returns the average velocity of the two connected particles
 		 */
-		public override function get_velocity():Vector {
-			var p1v:Vector =  p1.velocity;
-			var p2v:Vector =  p2.velocity;
+		public override function get_velocity():Vector2D {
+			var p1v:Vector2D =  p1.velocity;
+			var p2v:Vector2D =  p2.velocity;
 
 			avgVelocity.setTo(((p1v.x + p2v.x) / 2), ((p1v.y + p2v.y) / 2));
 			return avgVelocity;
@@ -210,7 +210,7 @@ package org.cove.ape ;
 
 		public override function paint():Void {
 
-			var c:Vector = parent.center;
+			var c:Vector2D = parent.center;
 			var s:Sprite = parent.sprite;
 
 			if (scaleToLength) {
@@ -254,7 +254,7 @@ package org.cove.ape ;
 		 * called only on collision
 		 */
 		public function updatePosition():Void {
-			var c:Vector = parent.center;
+			var c:Vector2D = parent.center;
 			curr.setTo(c.x, c.y);
 
 			width = (scaleToLength) ? parent.currLength * rectScale : parent.restLength * rectScale;
@@ -264,7 +264,7 @@ package org.cove.ape ;
 
 
 		public override function resolveCollision(
-				mtd:Vector, vel:Vector, n:Vector, d:Float, o:Int, p:AbstractParticle):Void {
+				mtd:Vector2D, vel:Vector2D, n:Vector2D, d:Float, o:Int, p:AbstractParticle):Void {
 
 			var t:Float = getContactPointParam(p);
 			var c1:Float = (1 - t);
@@ -312,8 +312,8 @@ package org.cove.ape ;
 		 * given point c, returns a parameterized location on this SCP. Note
 		 * Std.is(this,just) treating the cast(SCP,if) it were a line segment (ab).
 		 */
-		private function closestParamPoint(c:Vector):Float {
-			var ab:Vector = p2.curr.minus(p1.curr);
+		private function closestParamPoint(c:Vector2D):Float {
+			var ab:Vector2D = p2.curr.minus(p1.curr);
 			var t:Float = (ab.dot(c.minus(p1.curr))) / (ab.dot(ab));
 			return MathUtil.clamp(t, 0, 1);
 		}
@@ -413,14 +413,14 @@ package org.cove.ape ;
 		 */
 		private function closestPtSegmentSegment():Float {
 
-			var pp1:Vector = p1.curr;
-			var pq1:Vector = p2.curr;
-			var pp2:Vector = rca;
-			var pq2:Vector = rcb;
+			var pp1:Vector2D = p1.curr;
+			var pq1:Vector2D = p2.curr;
+			var pp2:Vector2D = rca;
+			var pq2:Vector2D = rcb;
 
-			var d1:Vector = pq1.minus(pp1);
-			var d2:Vector = pq2.minus(pp2);
-			var r:Vector = pp1.minus(pp2);
+			var d1:Vector2D = pq1.minus(pp1);
+			var d2:Vector2D = pq2.minus(pp2);
+			var r:Vector2D = pp1.minus(pp2);
 
 			var t:Float;
 			var a:Float = d1.dot(d1);
@@ -446,9 +446,9 @@ package org.cove.ape ;
 				s = MathUtil.clamp((b - c) / a, 0, 1);
 			}
 
-			var c1:Vector = pp1.plus(d1.mult(s));
-			var c2:Vector = pp2.plus(d2.mult(t));
-			var c1mc2:Vector = c1.minus(c2);
+			var c1:Vector2D = pp1.plus(d1.mult(s));
+			var c2:Vector2D = pp2.plus(d2.mult(t));
+			var c1mc2:Vector2D = c1.minus(c2);
 			return c1mc2.dot(c1mc2);
 		}
 	}
